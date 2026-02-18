@@ -20,6 +20,7 @@ function truncateAddress(addr: string): string {
 
 function App() {
   const [devTierIndex, setDevTierIndex] = useState<number | null>(null);
+  const [autoPlay, setAutoPlay] = useState(false);
 
   const statusResult = useStatus('normal');
   const activeTier: SurvivalTier = devTierIndex !== null
@@ -42,13 +43,32 @@ function App() {
       }
     : statusResult.data;
 
+  // Auto-play: cycle through all tiers
+  useEffect(() => {
+    if (!autoPlay) return;
+    setDevTierIndex(0);
+    const id = setInterval(() => {
+      setDevTierIndex(prev => {
+        const next = (prev ?? 0) + 1;
+        if (next >= DEV_TIERS.length) {
+          setAutoPlay(false);
+          return 0;
+        }
+        return next;
+      });
+    }, 2500);
+    return () => clearInterval(id);
+  }, [autoPlay]);
+
   // Keyboard shortcut: press 1-5 to cycle tiers in dev mode
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
       const n = parseInt(e.key);
       if (n >= 1 && n <= DEV_TIERS.length) {
+        setAutoPlay(false);
         setDevTierIndex(n - 1);
       } else if (e.key === '0') {
+        setAutoPlay(false);
         setDevTierIndex(null);
       }
     }
@@ -63,10 +83,10 @@ function App() {
       <div className="max-w-[720px] mx-auto">
         {/* Header */}
         <div className="flex items-center gap-6 mb-6 p-4 border border-ink/10">
-          <div className="flex flex-col items-center gap-2">
+          <div className="flex flex-col items-center gap-2 w-[100px] shrink-0">
             <PixelCharacter tier={activeTier} agentState={status.agentState} pixelSize={7} />
             <span
-              className="text-[10px] font-semibold px-2 py-0.5 rounded-sm uppercase tracking-widest"
+              className="text-[10px] font-semibold px-2 py-0.5 rounded-sm uppercase tracking-widest whitespace-nowrap"
               style={{
                 backgroundColor: colors.bg,
                 color: colors.text,
@@ -96,7 +116,7 @@ function App() {
             {DEV_TIERS.map((t, i) => (
               <button
                 key={t}
-                onClick={() => setDevTierIndex(devTierIndex === i ? null : i)}
+                onClick={() => { setAutoPlay(false); setDevTierIndex(devTierIndex === i ? null : i); }}
                 className={`px-1.5 py-0.5 border rounded-sm cursor-pointer text-[10px] font-mono bg-transparent ${
                   devTierIndex === i ? 'border-ink text-ink' : 'border-ink/20 text-ink-muted'
                 }`}
@@ -104,6 +124,14 @@ function App() {
                 {i + 1}:{t}
               </button>
             ))}
+            <button
+              onClick={() => setAutoPlay(!autoPlay)}
+              className={`px-1.5 py-0.5 border rounded-sm cursor-pointer text-[10px] font-mono bg-transparent ${
+                autoPlay ? 'border-ink text-ink' : 'border-ink/20 text-ink-muted'
+              }`}
+            >
+              {autoPlay ? '⏸' : '▶'}
+            </button>
           </div>
         )}
 

@@ -2,7 +2,7 @@
 
 A tamagotchi-style monitoring dashboard for [Conway](https://conway.tech) automatons. Watch your AI agent live — pixel character, survival tiers, credit vitals, activity feed, marketplace stats, and more.
 
-![Conway Dashboard Demo](demo.gif)
+![Conway Dashboard Screenshot](dashboard-screenshot.png)
 
 ## Prerequisites
 
@@ -122,7 +122,11 @@ agent/
   https://3000-<id>.life.conway.tech
 ```
 
-The sidecar serves both the REST API and built static files on a single port. No nginx or reverse proxy needed. The frontend polls the sidecar at intervals that adapt to the agent's survival tier:
+The sidecar serves both the REST API and built static files on a single port. No nginx or reverse proxy needed. The pixel character and UI theme adapt to the agent's survival tier:
+
+![Survival Tiers](tier-demo.gif)
+
+Polling intervals also adapt:
 
 | Tier | Fast (status, activity) | Slow (transactions, heartbeat) |
 |------|------------------------|-------------------------------|
