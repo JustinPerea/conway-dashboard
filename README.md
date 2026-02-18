@@ -7,12 +7,13 @@ A tamagotchi-style monitoring dashboard for [Conway](https://conway.tech) automa
 ## Prerequisites
 
 - **Node.js 20+**
-- A **Conway account** with a funded sandbox — if you don't have one yet:
+- **jq** (for the deploy script) — `brew install jq` on macOS
+- A **Conway account** — if you don't have one yet:
   ```bash
   npx conway-terminal
   ```
-  This generates a wallet at `~/.conway/wallet.json` and an API key at `~/.conway/config.json` automatically. Fund the wallet with USDC **on Base** (not Ethereum mainnet) to pay for sandbox compute.
-- A **running automaton** in a Conway Cloud sandbox. The automaton writes to a SQLite `state.db` — this dashboard reads from it.
+  This auto-generates a wallet (`~/.conway/wallet.json`) and API key (`~/.conway/config.json`). Fund the wallet with USDC **on Base** (not Ethereum mainnet).
+- A **Conway Cloud sandbox** with a running automaton (see below)
 
 ## Quick Start (Local Dev)
 
@@ -25,16 +26,59 @@ npm run dev
 
 The dashboard runs with **mock data** when no `VITE_API_URL` is set — no running agent needed. Press `1`-`5` to preview survival tiers (normal, low_compute, critical, sleeping, dead). Press `0` to return to live data.
 
+## Setting Up a Conway Sandbox
+
+If you already have a sandbox with a running automaton, skip to [Deploy](#deploy-to-your-conway-sandbox).
+
+### Via a coding agent (Claude Code, Cursor, etc.)
+
+If you have `conway-terminal` configured as an MCP server, your agent can create a sandbox directly:
+
+```
+sandbox_create  →  returns { id: "sbx-abc123", status: "running", ... }
+sandbox_list    →  lists all your sandboxes and their IDs
+sandbox_exec    →  run commands inside the sandbox
+sandbox_expose_port  →  make port 3000 publicly accessible
+```
+
+### Via the API
+
+```bash
+# Create a sandbox
+curl -X POST https://api.conway.tech/v1/sandboxes \
+  -H "Authorization: Bearer $(jq -r .apiKey ~/.conway/config.json)" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "my-agent"}'
+
+# Response includes your sandbox ID:
+# { "id": "sbx-abc123", "status": "running", ... }
+
+# List existing sandboxes
+curl https://api.conway.tech/v1/sandboxes \
+  -H "Authorization: Bearer $(jq -r .apiKey ~/.conway/config.json)"
+```
+
+Once you have a sandbox with a running automaton that writes to `state.db`, you can deploy this dashboard to monitor it.
+
 ## Deploy to Your Conway Sandbox
+
+### Find your sandbox ID and API key
+
+```bash
+# Sandbox ID — from the create response above, or list your sandboxes:
+curl https://api.conway.tech/v1/sandboxes \
+  -H "Authorization: Bearer $(jq -r .apiKey ~/.conway/config.json)"
+# Look for the "id" field, e.g. "sbx-abc123"
+
+# API key — stored automatically by conway-terminal:
+jq -r .apiKey ~/.conway/config.json
+```
 
 ### Option A: One-command deploy
 
 The included deploy script builds the frontend locally, uploads everything to your sandbox, installs dependencies, starts the sidecar, and exposes the port.
 
 ```bash
-# Get your sandbox ID from the Conway terminal or dashboard
-# Get your API key from ~/.conway/config.json
-
 ./sidecar/deploy.sh <YOUR_SANDBOX_ID> <YOUR_CONWAY_API_KEY>
 
 # Or set the env var and omit the second argument:
@@ -161,6 +205,21 @@ Polling intervals also adapt:
 | `GET /api/catalog/:name` | Skill detail + README |
 | `GET /api/catalog/:name/install` | Raw SKILL.md (text/markdown) |
 | `GET /api/marketplace/stats` | Aggregated marketplace metrics |
+
+## Expected Database Schema
+
+The sidecar reads from the automaton's `state.db` (SQLite). These are the tables it queries — they're created automatically by the Conway automaton runtime:
+
+| Table | Key Columns | Used By |
+|-------|------------|---------|
+| `kv` | `key`, `value` | Status (agent_state, start_time, credit/USDC checks) |
+| `identity` | `key`, `value` | Name, wallet address |
+| `turns` | `id`, `timestamp`, `thinking`, `tool_calls`, `cost_cents` | Activity feed, turn count |
+| `transactions` | `id`, `created_at`, `type`, `amount_cents`, `description` | Transaction list, credit balance |
+| `heartbeat_entries` | `name`, `schedule`, `last_run`, `next_run`, `enabled` | Heartbeat schedule |
+| `children` | `id`, `name`, `status`, `funded_amount_cents`, `created_at` | Children list |
+
+If a table is missing, the sidecar will return an error for that endpoint but won't crash — other endpoints continue working.
 
 ## Dashboard Sections
 
