@@ -2,7 +2,7 @@
 
 A tamagotchi-style monitoring dashboard for [Conway](https://conway.tech) automatons. Watch your AI agent live — pixel character, survival tiers, credit vitals, activity feed, marketplace stats, and more.
 
-![Conway Dashboard Screenshot](dashboard-screenshot.png)
+![Conway Dashboard Demo](demo.gif)
 
 ## Prerequisites
 

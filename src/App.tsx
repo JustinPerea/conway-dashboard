@@ -63,23 +63,23 @@ function App() {
       <div className="max-w-[720px] mx-auto">
         {/* Header */}
         <div className="flex items-center gap-6 mb-6 p-4 border border-ink/10">
-          <PixelCharacter tier={activeTier} agentState={status.agentState} pixelSize={7} />
+          <div className="flex flex-col items-center gap-2">
+            <PixelCharacter tier={activeTier} agentState={status.agentState} pixelSize={7} />
+            <span
+              className="text-[10px] font-semibold px-2 py-0.5 rounded-sm uppercase tracking-widest"
+              style={{
+                backgroundColor: colors.bg,
+                color: colors.text,
+                border: `1px solid ${colors.border}`,
+              }}
+            >
+              {tierLabels[activeTier]}
+            </span>
+          </div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between">
-              <h1 className="text-sm font-semibold uppercase tracking-wider m-0">
-                {status.name}
-              </h1>
-              <span
-                className="text-[10px] font-semibold px-2 py-0.5 rounded-sm uppercase tracking-widest"
-                style={{
-                  backgroundColor: colors.bg,
-                  color: colors.text,
-                  border: `1px solid ${colors.border}`,
-                }}
-              >
-                {tierLabels[activeTier]}
-              </span>
-            </div>
+            <h1 className="text-sm font-semibold uppercase tracking-wider m-0">
+              {status.name}
+            </h1>
             <div className="text-[10px] text-ink-muted mt-1 font-mono">
               {truncateAddress(status.address)}
             </div>
@@ -91,7 +91,7 @@ function App() {
 
         {/* Dev tier switcher (only visible in mock mode) */}
         {!statusResult.connected && (
-          <div className="flex items-center gap-2 mb-4 text-[10px] text-ink-muted">
+          <div className="sticky top-0 z-50 flex items-center gap-2 py-2 mb-2 text-[10px] text-ink-muted bg-cream">
             <span>Tier preview:</span>
             {DEV_TIERS.map((t, i) => (
               <button

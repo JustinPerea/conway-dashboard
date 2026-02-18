@@ -5,4 +5,5 @@ dist/
 .claude/
 *.db
 *.jpeg
+*.mov
 CLAUDE.md
