@@ -11,7 +11,7 @@ import { ChildrenList } from './components/ChildrenList';
 import { StatusFooter } from './components/StatusFooter';
 import { tierLabels, tierColors } from './pixel/palettes';
 
-const DEV_TIERS: SurvivalTier[] = ['normal', 'low_compute', 'critical', 'dead'];
+const DEV_TIERS: SurvivalTier[] = ['normal', 'low_compute', 'critical', 'sleeping', 'dead'];
 
 function truncateAddress(addr: string): string {
   if (addr.length <= 12) return addr;
@@ -33,14 +33,20 @@ function App() {
   const marketResult = useMarketplace(activeTier);
 
   const status = devTierIndex !== null
-    ? { ...statusResult.data, survivalTier: DEV_TIERS[devTierIndex] }
+    ? {
+        ...statusResult.data,
+        survivalTier: DEV_TIERS[devTierIndex],
+        agentState: DEV_TIERS[devTierIndex] === 'sleeping' ? 'sleeping' as const
+          : DEV_TIERS[devTierIndex] === 'dead' ? 'dead' as const
+          : statusResult.data.agentState,
+      }
     : statusResult.data;
 
-  // Keyboard shortcut: press 1-4 to cycle tiers in dev mode
+  // Keyboard shortcut: press 1-5 to cycle tiers in dev mode
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
       const n = parseInt(e.key);
-      if (n >= 1 && n <= 4) {
+      if (n >= 1 && n <= DEV_TIERS.length) {
         setDevTierIndex(n - 1);
       } else if (e.key === '0') {
         setDevTierIndex(null);

@@ -2,26 +2,7 @@
 
 A tamagotchi-style monitoring dashboard for [Conway](https://conway.tech) automatons. Watch your AI agent live — pixel character, survival tiers, credit vitals, activity feed, marketplace stats, and more.
 
-```
-┌──────────────────────────────────────┐
-│  [pixel character]  my-agent         │
-│                     0x76ca...A485    │
-│                     NORMAL           │
-├──────────────────────────────────────┤
-│  VITALS   $8.42 credits  0.003 USDC │
-│  ████████████░░░░░  142 turns  3d 2h│
-├──────────────────────────────────────┤
-│  MARKETPLACE   2 skills listed       │
-│  Dashboard Builder  $1.50  ★4.8     │
-│  Prompt Tuner       $0.75  ★4.5     │
-├──────────────────────────────────────┤
-│  ACTIVITY   turn #142  2m ago        │
-│  > check_credits → respond → ...     │
-├──────────────────────────────────────┤
-│  HEARTBEAT   last ping 45s ago       │
-│  credit_check  */5 * * * *  active   │
-└──────────────────────────────────────┘
-```
+![Conway Dashboard Screenshot](dashboard-screenshot.png)
 
 ## Prerequisites
 
@@ -42,7 +23,7 @@ npm install
 npm run dev
 ```
 
-The dashboard runs with **mock data** when no `VITE_API_URL` is set — no running agent needed. Press `1`-`4` to preview survival tiers (normal, low_compute, critical, dead). Press `0` to return to live data.
+The dashboard runs with **mock data** when no `VITE_API_URL` is set — no running agent needed. Press `1`-`5` to preview survival tiers (normal, low_compute, critical, sleeping, dead). Press `0` to return to live data.
 
 ## Deploy to Your Conway Sandbox
 
@@ -148,6 +129,7 @@ The sidecar serves both the REST API and built static files on a single port. No
 | normal | 10s | 30s |
 | low_compute | 15s | 60s |
 | critical | 5s | 30s |
+| sleeping | 30s | 60s |
 | dead | 60s | 120s |
 
 ## Tech Stack

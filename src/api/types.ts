@@ -1,7 +1,7 @@
-export type SurvivalTier = 'normal' | 'low_compute' | 'critical' | 'dead';
+export type SurvivalTier = 'normal' | 'low_compute' | 'critical' | 'sleeping' | 'dead';
 
 export interface AgentStatus {
-  agentState: 'running' | 'paused' | 'stopped' | 'dead';
+  agentState: 'running' | 'paused' | 'sleeping' | 'stopped' | 'dead';
   survivalTier: SurvivalTier;
   creditsCents: number;
   usdcBalance: number;

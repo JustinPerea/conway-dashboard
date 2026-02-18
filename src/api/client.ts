@@ -15,6 +15,7 @@ const intervals: Record<SurvivalTier, { fast: number; slow: number }> = {
   normal:      { fast: 10_000, slow: 30_000 },
   low_compute: { fast: 15_000, slow: 60_000 },
   critical:    { fast: 5_000,  slow: 30_000 },
+  sleeping:    { fast: 30_000, slow: 60_000 },
   dead:        { fast: 60_000, slow: 120_000 },
 };
 
